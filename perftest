@@ -3,6 +3,7 @@ use 5.012;
 use List::Util qw(min max sum);
 use Time::HiRes 'time';
 use Getopt::Long;
+use Statistics::Basic ':all';
 
 my $n;
 my $runs;
@@ -13,22 +14,45 @@ if (!$n or !$runs) {
     exit 1;
 }
 
+sub measure {
+    my $command = shift;
+
+    my $before = time;
+    system($command);
+    my $after = time;
+    printf "(%d seconds elapsed)\n", $after - $before;
+
+    return $after - $before;
+}
 
 my @times;
+my @times_sort;
 
 my $time ='/usr/bin/time -o /dev/stdout -f %e';
 
 for (1..$runs) {
     system("./generator $n > dane$n");
-    my $before = time;
-    system("./wyliczator < dane$n >/dev/null");
-    my $after = time;
-    push @times, $after - $before;
+    say "Running the normal variant";
+    push @times, measure("./wyliczator < dane$n >/dev/null");
+
+    say "Running the sorting variant";
+    push @times_sort, measure("./wyliczator --sort < dane$n >/dev/null");
 }
 
 unlink "dane$n";
 
-say "Total: ", sum @times;
-say "Minimum: ", min @times;
-say "Maximum: ", max @times;
-say "Average: ", sum(@times) / +@times;
+sub printstats {
+    my @times = @_;
+
+    say "Total:   ", sum @times;
+    say "Minimum: ", min @times;
+    say "Maximum: ", max @times;
+    say "Average: ", sum(@times) / +@times;
+    say "Median:  ", median(@times);
+}
+
+say "# Normal";
+printstats @times;
+
+say "# With --sort";
+printstats @times_sort;

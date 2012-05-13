@@ -88,7 +88,18 @@ void find_segments(struct Point *red, struct Point *green,
     fprintf(stderr,"Solution found, backtracked %lu times\n",backtracks);
 }
 
-int main(void)
+int compare_points(const void *a, const void *b)
+{
+    struct Point *c = (struct Point *)a;
+    struct Point *d = (struct Point *)b;
+    if (c->y > d->y) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
+int main(int argc, char *argv[])
 {
     char buf[64];
     struct Point   *red    = NULL;
@@ -124,6 +135,11 @@ int main(void)
     }
 
     result = (struct Segment *)malloc(sizeof(struct Segment) * n);
+
+    if (argc > 1 && strcmp(argv[1], "--sort") == 0) {
+        qsort(red,   n, sizeof(struct Point), compare_points);
+        qsort(green, n, sizeof(struct Point), compare_points);
+    }
 
     find_segments(red, green, result, n);
 
