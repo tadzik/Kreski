@@ -50,9 +50,8 @@ void find_segments(struct Point *red, struct Point *green,
     int *green_iter, *green_taken;
     unsigned long backtracks = 0;
 
-    // bit field: does point n already have its pair
-    green_iter  = (int *)calloc(n, sizeof(int));
     green_taken = (int *)calloc(n, sizeof(int));
+    green_iter  = (int *)calloc(n, sizeof(int));
 
     while (step < n) {
         int i;
@@ -60,41 +59,17 @@ void find_segments(struct Point *red, struct Point *green,
         res[step].start = &red[step];
         // pick the smallest green_iter that we haven't checked before
         // (initially this is 0)
-        //printf("## Step %d ##\n", step);
-
-        /*printf("Green status (step %d):\n", step);
-        for (int i = 0; i < n; i++) {
-            printf("Green [%d]: %s\n", i, green_taken[i] ? "taken"
-                                                         : "free");
-        }*/
 
         for (i = green_iter[step]; i < n; i++) {
-            // skip if it's taken
-            if (green_taken[i]) {
-                //printf("Green %d already taken\n", i);
+            if (green_taken[i]) continue;
+            res[step].end = &green[i];
+            if (find_any_intersection(&res[step], res, step)) {
                 continue;
             }
-            // try to match and check for intersections. Skip if any
-            res[step].end = &green[i];
-            /*
-            printf("Trying (%d,%d) and (%d, %d) (step %d): ",
-                            res[step].start->x, res[step].start->y,
-                            res[step].end->x,   res[step].end->y,
-                            step);*/
-            if (find_any_intersection(&res[step], res, step)) {
-                //puts("It collides");
-                continue;
-            }/* else {
-                puts("It's fine");
-            }*/
-            // If we got this far we're fine
             break;
         }
-        // if the loop was never interrupted then we have to backtrack
-        // (we didn't find anything working)
         if (i == n) {
-            //puts("Match not found, backtracking");
-            //printf("Freeing green #%d\n", green_iter[step - 1]);
+            // backtrack
             green_taken[green_iter[step - 1]] = 0;
             green_iter[step] = 0;
             step--;
@@ -102,8 +77,6 @@ void find_segments(struct Point *red, struct Point *green,
             assert(step >= 0);
             backtracks++;
         } else {
-            //printf("## Step %d SUCCESSFUL ##\n", step);
-            //printf("Matched red #%d with green #%d\n", step, i);
             green_taken[i] = 1;
             green_iter[step] = i;
             step++;
