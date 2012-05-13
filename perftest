@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+use 5.012;
+use List::Util qw(min max sum);
+use Time::HiRes 'time';
+use Getopt::Long;
+
+my $n;
+my $runs;
+
+GetOptions("n=i" => \$n, "r=i" => \$runs);
+if (!$n or !$runs) {
+    say "Usage: $0 -n <number of pairs> -r <number of runs>";
+    exit 1;
+}
+
+
+my @times;
+
+my $time ='/usr/bin/time -o /dev/stdout -f %e';
+
+for (1..$runs) {
+    system("./generator $n > dane$n");
+    my $before = time;
+    system("./wyliczator < dane$n >/dev/null");
+    my $after = time;
+    push @times, $after - $before;
+}
+
+unlink "dane$n";
+
+say "Total: ", sum @times;
+say "Minimum: ", min @times;
+say "Maximum: ", max @times;
+say "Average: ", sum(@times) / +@times;

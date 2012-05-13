@@ -1,0 +1,35 @@
+#!/usr/bin/env perl
+use 5.012;
+use lib 'perllib';
+use SVG;
+
+my $svg = SVG->new(width => 600, height => 600);
+my $group = $svg->group(
+    style => { stroke => 'white', fill => 'black' }
+);
+
+my $greenpoint = $svg->group(
+    style => { stroke => 'green', fill => 'green' }
+);
+
+my $redpoint = $svg->group(
+    style => { stroke => 'red', fill => 'red' }
+);
+
+$group->rectangle(
+    x => 0, y => 0,
+    width => 600, height => 600,
+);
+
+while (<>) {
+    my ($a, $b, $c, $d) = split /\s+/, $_, 4;
+    $a *= 6;
+    $b *= 6;
+    $c *= 6;
+    $d *= 6;
+    $group->line(x1 => $a, y1 => $b, x2 => $c, y2 => $d);
+    $greenpoint->circle(cx => $a, cy => $b, r => 2);
+    $redpoint->circle(cx => $c, cy => $d, r => 2);
+}
+
+say $svg->xmlify;

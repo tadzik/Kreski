@@ -1,0 +1,7 @@
+Use
+
+    ./generator 15 | ./wyliczator|./wizualizator > result.svg
+
+to generate stuff.
+
+Depedending on your luck and your machine this may take quite a time

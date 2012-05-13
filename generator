@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+use 5.012;
+
+my $n = $ARGV[0];
+say $n;
+
+sub pick { int(rand(100)) }
+
+for (1..$n) {
+    printf "%d %d %d %d\n", pick, pick, pick, pick
+}
